@@ -14,6 +14,11 @@
 		1911BC6E1C8FAFE200215F53 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC6C1C8FAFE200215F53 /* Main.storyboard */; };
 		1911BC701C8FAFE200215F53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC6F1C8FAFE200215F53 /* Assets.xcassets */; };
 		1911BC731C8FAFE200215F53 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC711C8FAFE200215F53 /* LaunchScreen.storyboard */; };
+		1911BC7B1C8FB02700215F53 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1911BC7A1C8FB02700215F53 /* Player.swift */; };
+		1911BC7D1C8FB24D00215F53 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1911BC7C1C8FB24D00215F53 /* Icon.swift */; };
+		1911BC7F1C8FB29000215F53 /* Main_Move.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC7E1C8FB29000215F53 /* Main_Move.atlas */; };
+		1911BC811C8FB2B400215F53 /* Horror.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1911BC801C8FB2B400215F53 /* Horror.swift */; };
+		1911BC831C8FECBC00215F53 /* Main_Attack.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC821C8FECBC00215F53 /* Main_Attack.atlas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +31,11 @@
 		1911BC6F1C8FAFE200215F53 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1911BC721C8FAFE200215F53 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1911BC741C8FAFE200215F53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1911BC7A1C8FB02700215F53 /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		1911BC7C1C8FB24D00215F53 /* Icon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
+		1911BC7E1C8FB29000215F53 /* Main_Move.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = Main_Move.atlas; sourceTree = "<group>"; };
+		1911BC801C8FB2B400215F53 /* Horror.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Horror.swift; sourceTree = "<group>"; };
+		1911BC821C8FECBC00215F53 /* Main_Attack.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = Main_Attack.atlas; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,8 +68,13 @@
 		1911BC631C8FAFE200215F53 /* Eldritch */ = {
 			isa = PBXGroup;
 			children = (
+				1911BC7E1C8FB29000215F53 /* Main_Move.atlas */,
+				1911BC821C8FECBC00215F53 /* Main_Attack.atlas */,
 				1911BC641C8FAFE200215F53 /* AppDelegate.swift */,
 				1911BC661C8FAFE200215F53 /* GameScene.sks */,
+				1911BC7C1C8FB24D00215F53 /* Icon.swift */,
+				1911BC801C8FB2B400215F53 /* Horror.swift */,
+				1911BC7A1C8FB02700215F53 /* Player.swift */,
 				1911BC681C8FAFE200215F53 /* GameScene.swift */,
 				1911BC6A1C8FAFE200215F53 /* GameViewController.swift */,
 				1911BC6C1C8FAFE200215F53 /* Main.storyboard */,
@@ -129,10 +144,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1911BC831C8FECBC00215F53 /* Main_Attack.atlas in Resources */,
 				1911BC671C8FAFE200215F53 /* GameScene.sks in Resources */,
 				1911BC731C8FAFE200215F53 /* LaunchScreen.storyboard in Resources */,
 				1911BC701C8FAFE200215F53 /* Assets.xcassets in Resources */,
 				1911BC6E1C8FAFE200215F53 /* Main.storyboard in Resources */,
+				1911BC7F1C8FB29000215F53 /* Main_Move.atlas in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,6 +163,9 @@
 				1911BC691C8FAFE200215F53 /* GameScene.swift in Sources */,
 				1911BC6B1C8FAFE200215F53 /* GameViewController.swift in Sources */,
 				1911BC651C8FAFE200215F53 /* AppDelegate.swift in Sources */,
+				1911BC811C8FB2B400215F53 /* Horror.swift in Sources */,
+				1911BC7D1C8FB24D00215F53 /* Icon.swift in Sources */,
+				1911BC7B1C8FB02700215F53 /* Player.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
