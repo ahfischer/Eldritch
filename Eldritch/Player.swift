@@ -28,7 +28,7 @@ class Player: SKSpriteNode {
     var defense: Double = 1.0;
     var specialDefense: Double = 1.0;
     
-    var stats: [Double] = [];
+    //var stats: [Double] = [];
     
     init() {
         
@@ -49,11 +49,25 @@ class Player: SKSpriteNode {
         self.physicsBody?.contactTestBitMask = physicsCategories.horror;
         
         // Set Up Stats Array
-        stats = [attack, specialAttack, defense, specialDefense];
+        //stats = [attack, specialAttack, defense, specialDefense];
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    init(health: Double, corruption: Double, attack: Double, specialAttack: Double, defense: Double, specialDefense: Double) {
+        
+        let texture = SKTexture(imageNamed: "Main_Idle");
+        
+        self.health = health;
+        self.corruption = corruption;
+        self.attack = attack;
+        self.specialAttack = specialAttack;
+        self.defense = defense;
+        self.specialDefense = specialDefense;
+        
+        super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
     }
     
     func addMovingPoint(point: CGPoint) {
