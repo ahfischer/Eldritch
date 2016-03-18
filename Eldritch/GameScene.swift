@@ -24,10 +24,10 @@ struct physicsCategories {
 }
 
 // Bools
-var pTurn = false;
 var touchingScreen = false;
 var moveEnabled = false;
-var attackEnabled = true;
+var attackEnabled = false;
+var dodgeEnabled = false;
 
 var won = false;
 
@@ -35,6 +35,7 @@ var won = false;
 var player: Player!
 var horror: Horror!
 
+// Attack Nodes
 let spear = SKSpriteNode(imageNamed: "swipe");
 
 // Icons ADD SHADOWS TO THESE LATER FOR DEPTH
@@ -43,6 +44,12 @@ let castIcon = SKSpriteNode(imageNamed: "castIcon");
 let dodgeIcon = SKSpriteNode(imageNamed: "dodgeIcon");
 let moveIcon = SKSpriteNode(imageNamed: "moveIcon");
 //let iconArray = [moveIcon, dodgeIcon];
+
+// Attack Direction Icons
+let directionUpIcon = SKSpriteNode(imageNamed: "attackUpIcon");
+let directionRightIcon = SKSpriteNode(imageNamed: "attackRightIcon");
+let directionDownIcon = SKSpriteNode(imageNamed: "attackDownIcon");
+let directionLeftIcon = SKSpriteNode(imageNamed: "attackLeftIcon");
 
 // Health Bar
 let healthLabel = SKLabelNode(fontNamed:"Copperplate");
@@ -82,19 +89,21 @@ class GameScene: SKScene {
         player = Player();
         horror = Horror();
         
-        backgroundColor = UIColor.blackColor();
+        backgroundColor = UIColor.grayColor();
         
         // Player Node
         player.position = CGPointMake(self.frame.size.width/3, self.frame.size.height/3);
-        player.xScale = 1.5;
-        player.yScale = 1.5;
+        player.zPosition = 2;
+        //player.xScale = 1.5;
+        //player.yScale = 1.5;
         player.name = "player";
         self.addChild(player);
         
         // Enemy Node
         horror.position = CGPointMake(self.frame.size.width/1.5, self.frame.size.height/2);
-        horror.xScale = 3;
-        horror.yScale = 3;
+        player.zPosition = 2;
+        horror.xScale = 2//3;
+        horror.yScale = 2//3;
         horror.name = "horror";
         self.addChild(horror);
         self.runAction(roar);
@@ -103,7 +112,7 @@ class GameScene: SKScene {
         moveIcon.xScale = 0.8;
         moveIcon.yScale = 0.8;
         moveIcon.position = CGPoint(x: sceneSize.width/3, y:sceneSize.height/15);
-        moveIcon.zPosition = 2;
+        moveIcon.zPosition = 3;
         moveIcon.name = "moveIcon";
         self.addChild(moveIcon);
         
@@ -117,7 +126,7 @@ class GameScene: SKScene {
         dodgeIcon.xScale = 0.8;
         dodgeIcon.yScale = 0.8;
         dodgeIcon.position = CGPoint(x: attackIcon.position.x+dodgeIcon.frame.width, y: attackIcon.position.y);
-        dodgeIcon.zPosition = 2;
+        dodgeIcon.zPosition = 3;
         dodgeIcon.name = "dodgeIcon";
         self.addChild(dodgeIcon);
         
@@ -128,6 +137,36 @@ class GameScene: SKScene {
         // Position
         healthLabel.position = CGPoint(x: frame.size.width/1.635, y: frame.size.height/20);
         self.addChild(healthLabel);
+        
+        // Attack Direction Icons
+        directionUpIcon.size = CGSize(width: frame.width/4, height: frame.height/18);
+        directionUpIcon.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/1.02);
+        directionUpIcon.zPosition = 1;
+        directionUpIcon.alpha = 0.3;
+        self.addChild(directionUpIcon);
+        directionUpIcon.name = "directionUpIcon";
+        
+        directionRightIcon.size = CGSize(width: frame.width/18, height: frame.height/3.5);
+        directionRightIcon.position = CGPoint(x: self.frame.width/1.465, y: self.frame.size.width/2.5);
+        directionRightIcon.zPosition = 1;
+        directionRightIcon.alpha = 0.3;
+        self.addChild(directionRightIcon);
+        directionRightIcon.name = "directionRightIcon";
+        
+        directionDownIcon.size = CGSize(width: frame.width/4, height: frame.height/18);
+        directionDownIcon.position = CGPoint(x: directionUpIcon.position.x, y: dodgeIcon.position.y + self.frame.size.height/14);
+        directionDownIcon.zPosition = 1;
+        directionDownIcon.alpha = 0.3;
+        self.addChild(directionDownIcon);
+        directionDownIcon.name = "directionDownIcon";
+        
+        directionLeftIcon.size = CGSize(width: frame.width/18, height: frame.height/3.5);
+        directionLeftIcon.position = CGPoint(x: self.frame.width/3.15, y: self.frame.size.width/2.5);
+        directionLeftIcon.zPosition = 1;
+        directionLeftIcon.alpha = 0.3;
+        self.addChild(directionLeftIcon);
+        directionLeftIcon.name = "directionLeftIcon";
+        
         
         // Border
         let border = SKPhysicsBody(edgeLoopFromRect: self.frame);
@@ -147,15 +186,13 @@ class GameScene: SKScene {
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         
-        pTurn = true;
-        
         let touch = touches.first! as UITouch;
         let location = touch.locationInNode(self);
         let touchedNode = self.nodeAtPoint(location);
         var multiplierForDirection : CGFloat;
         
         // Give Player a Speed
-        let playerSpeed = self.frame.size.width / 5.0;
+        let playerSpeed = self.frame.size.width / 8.0; //5.0;
         
         // X and Y Distances
         let moveDifference = CGPointMake(location.x - player.position.x, location.y - player.position.y);
@@ -177,7 +214,7 @@ class GameScene: SKScene {
             //print("Animation Completed")
             player.removeAllActions();
         }));
-
+        
         if let name = touchedNode.name {
             print(name);
             switch name {
@@ -185,29 +222,116 @@ class GameScene: SKScene {
                 moveEnabled = true;
                 moveIcon.alpha = 0.3;
                 print("moveEnabled")
+                if attackEnabled || dodgeEnabled {
+                    attackEnabled = false;
+                    dodgeEnabled = false;
+                }
             case "attackIcon":
-                
-                // Change MultiplierForDirection Accordingly
-                
                 attackEnabled = true;
-                
-                let spear = SKSpriteNode(imageNamed: "swipe");
-                spear.position = CGPoint(x: player.position.x, y: player.position.y-spear.size.width*2);
-                //directionalAttack();
-                spear.size = spear.texture!.size();
-                spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
-                spear.physicsBody?.dynamic = true;
-                spear.physicsBody?.categoryBitMask = physicsCategories.spear;
-                spear.physicsBody?.contactTestBitMask = physicsCategories.horror;
-                self.addChild(spear);
-                
-                player.runAction(playerAttackAction, withKey: "playerAttacking");
-                print("attack");
-                
+                //attackIcon.alpha = 0.3;
+                if attackEnabled || dodgeEnabled {
+                    dodgeEnabled = false;
+                }
             case "dodgeIcon":
                 // Disipate into a Purple Mist and Wisp to New Area
                 // have to remove collision
                 
+                // This disables contacts and physics collisions from both, must reenable after dodge completes
+                dodgeEnabled = true;
+                
+            case "directionUpIcon":
+                
+                if attackEnabled {
+                    spear.position = CGPoint(x: player.position.x, y: player.position.y+spear.size.width*2);
+                    spear.size = spear.texture!.size();
+                    spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
+                    spear.physicsBody?.dynamic = true;
+                    spear.physicsBody?.categoryBitMask = physicsCategories.spear;
+                    spear.physicsBody?.contactTestBitMask = physicsCategories.horror;
+                    self.addChild(spear);
+                    
+                    player.runAction(playerAttackAction, withKey: "playerAttacking");
+                    print("attack");
+                    
+                    attackEnabled = false;
+                }
+                
+                if dodgeEnabled {
+                    // replace duration with animation.duration
+                    player.runAction(SKAction.moveByX(0.0, y: size.height*10, duration: 2));
+                    
+                    dodgeEnabled = false;
+                }
+            case "directionRightIcon":
+                
+                if attackEnabled {
+                    spear.position = CGPoint(x: player.position.x+spear.size.width*2, y: player.position.y);
+                    spear.size = spear.texture!.size();
+                    spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
+                    spear.physicsBody?.dynamic = true;
+                    spear.physicsBody?.categoryBitMask = physicsCategories.spear;
+                    spear.physicsBody?.contactTestBitMask = physicsCategories.horror;
+                    self.addChild(spear);
+                    
+                    player.runAction(playerAttackAction, withKey: "playerAttacking");
+                    print("attack");
+                    
+                    attackEnabled = false;
+                }
+                
+                if dodgeEnabled {
+                    // replace duration with animation.duration
+                    player.runAction(SKAction.moveByX(0.0, y: size.height*10, duration: 2));
+                    
+                    dodgeEnabled = false;
+                }
+            case "directionDownIcon":
+                
+                if attackEnabled {
+                    spear.position = CGPoint(x: player.position.x, y: player.position.y-spear.size.width*2);
+                    spear.size = spear.texture!.size();
+                    spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
+                    spear.physicsBody?.dynamic = true;
+                    spear.physicsBody?.categoryBitMask = physicsCategories.spear;
+                    spear.physicsBody?.contactTestBitMask = physicsCategories.horror;
+                    self.addChild(spear);
+                    
+                    player.runAction(playerAttackAction, withKey: "playerAttacking");
+                    print("attack");
+                    
+                    attackEnabled = false;
+                }
+                
+                if dodgeEnabled {
+                    // replace duration with animation.duration
+                    player.runAction(SKAction.moveByX(0.0, y: size.height*10, duration: 2));
+                    
+                    dodgeEnabled = false;
+                }
+            case "directionLeftIcon":
+                
+                if attackEnabled {
+                    spear.position = CGPoint(x: player.position.x-spear.size.width*2, y: player.position.y);
+                    spear.size = spear.texture!.size();
+                    spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
+                    spear.physicsBody?.dynamic = true;
+                    spear.physicsBody?.categoryBitMask = physicsCategories.spear;
+                    spear.physicsBody?.contactTestBitMask = physicsCategories.horror;
+                    self.addChild(spear);
+                    
+                    player.runAction(playerAttackAction, withKey: "playerAttacking");
+                    print("attack");
+                    
+                    attackEnabled = false;
+                }
+                
+                if dodgeEnabled {
+                    // replace duration with animation.duration
+                    player.runAction(SKAction.moveByX(0.0, y: size.height*10, duration: 2));
+                    
+                    dodgeEnabled = false;
+                }
+            case "pauseButton":
                 if scene!.view!.paused {
                     scene!.view!.paused = false;
                     audio.play();
@@ -246,9 +370,8 @@ class GameScene: SKScene {
             // If Player isn't Moving, Kill Animation
             player.runAction(doneAction);
             horror.removeAllActions();
-            //pTurn = false;
         }
-
+        
     }
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -258,19 +381,41 @@ class GameScene: SKScene {
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
         
-        // if attackingDownward
-//        let spearRemoveAction = SKAction.runBlock({ () -> Void in
-//            spear.removeFromParent();
-//        });
+        // Hide Directional Attacks, Until Attacking
+        if attackEnabled || dodgeEnabled {
+            directionUpIcon.hidden = false;
+            directionRightIcon.hidden = false;
+            directionDownIcon.hidden = false;
+            directionLeftIcon.hidden = false;
+        } else {
+            directionUpIcon.hidden = true;
+            directionRightIcon.hidden = true;
+            directionDownIcon.hidden = true;
+            directionLeftIcon.hidden = true;
+        }
+        
+        // Remove Collision When Dodge is Pressed
+        if dodgeEnabled {
+            player.physicsBody?.contactTestBitMask = 0;
+            horror.physicsBody?.contactTestBitMask = 0;
+            player.physicsBody?.dynamic = false;
+            horror.physicsBody?.dynamic = false;
+        } else {
+            player.physicsBody?.contactTestBitMask = physicsCategories.horror;
+            horror.physicsBody?.contactTestBitMask = physicsCategories.player;
+            player.physicsBody?.dynamic = true;
+            horror.physicsBody?.dynamic = true;
+        }
         
         // If Player Isn't Moving, Return to Idle
-        if (player.actionForKey("moving") == nil) {
+        if (player.actionForKey("moving") == nil && player.actionForKey("playerAttacking") == nil) {
             
             // Only Unclick After Moving
             if moveEnabled == false {
                 moveIcon.alpha = 1;
             }
             
+            // Set Idle
             player.runAction(playerIdleState);
             
             // Stop All Enemy Actions When Player Not Moving
@@ -284,27 +429,24 @@ class GameScene: SKScene {
         
         // If Player Isn't Attacking
         if (player.actionForKey("playerAttacking") == nil) {
-            //spear.runAction(spearRemoveAction);
             attackIcon.userInteractionEnabled = false;
             attackIcon.alpha = 1;
             spear.removeFromParent();
-            //pTurn = false;
         }
         
         // If Player is Attacking
         if (player.actionForKey("playerAttacking") != nil) {
             attackIcon.userInteractionEnabled = true;
             attackIcon.alpha = 0.3;
-            //pTurn = true;
         }
         
-        // Have Enemy Follow Player
-        if pTurn {
+        // Have Horror Follow Player When Active
+        if (player.actionForKey("playerAttacking") != nil || player.actionForKey("moving") != nil) {
             if player.position.x != horror.position.x {
-                horror.runAction(SKAction.moveTo(player.position, duration: 5));
+                horror.runAction(SKAction.moveTo(player.position, duration: 7));
             }
             if player.position.y != horror.position.y {
-                horror.runAction(SKAction.moveTo(player.position, duration: 5));
+                horror.runAction(SKAction.moveTo(player.position, duration: 7));
             }
         }
         

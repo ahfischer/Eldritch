@@ -18,7 +18,7 @@
 		1911BC7D1C8FB24D00215F53 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1911BC7C1C8FB24D00215F53 /* Icon.swift */; };
 		1911BC7F1C8FB29000215F53 /* Main_Move.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC7E1C8FB29000215F53 /* Main_Move.atlas */; };
 		1911BC811C8FB2B400215F53 /* Horror.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1911BC801C8FB2B400215F53 /* Horror.swift */; };
-		1911BC831C8FECBC00215F53 /* Main_Attack.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC821C8FECBC00215F53 /* Main_Attack.atlas */; };
+		19317F551C98CC4B004A7107 /* Main_Attack.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 1911BC821C8FECBC00215F53 /* Main_Attack.atlas */; };
 		19CA2FEA1C94AEB60014416B /* GameOverScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CA2FE91C94AEB60014416B /* GameOverScene.swift */; };
 		19CA2FEC1C94C9FE0014416B /* backgroundMusic.wav in Resources */ = {isa = PBXBuildFile; fileRef = 19CA2FEB1C94C9FE0014416B /* backgroundMusic.wav */; };
 		19CA2FF01C95138E0014416B /* pain.wav in Resources */ = {isa = PBXBuildFile; fileRef = 19CA2FEF1C95138E0014416B /* pain.wav */; };
@@ -156,10 +156,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1911BC831C8FECBC00215F53 /* Main_Attack.atlas in Resources */,
 				1911BC671C8FAFE200215F53 /* GameScene.sks in Resources */,
 				1911BC731C8FAFE200215F53 /* LaunchScreen.storyboard in Resources */,
 				1911BC701C8FAFE200215F53 /* Assets.xcassets in Resources */,
+				19317F551C98CC4B004A7107 /* Main_Attack.atlas in Resources */,
 				19CA2FF01C95138E0014416B /* pain.wav in Resources */,
 				1911BC6E1C8FAFE200215F53 /* Main.storyboard in Resources */,
 				19CA2FF21C9513950014416B /* roar.wav in Resources */,
