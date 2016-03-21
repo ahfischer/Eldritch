@@ -1,5 +1,5 @@
 //
-//  Horror.swift
+//  Player.swift
 //  Eldritch
 //
 //  Created by Anthony Fischer on 3/8/16.
@@ -10,15 +10,10 @@ import SpriteKit
 
 class Player: SKSpriteNode {
     
-    let movementSpeed: CGFloat = 80.0
-    var wayPoints: [CGPoint] = []
-    var velocity = CGPoint(x: 0, y: 0)
-    
     // Add moves to array to select
     var knownMoves: [String] = ["Stab", "Swing"];
-    //var knownMoves = [baseAttack]
-    //var knownMoves: [SKAction] = [];
     
+    // Player Stats
     var health: Double = 100.0;
     var corruption: Double = 1.0;
     
@@ -32,13 +27,16 @@ class Player: SKSpriteNode {
     
     init() {
         
+        // Player Texture
         let texture = SKTexture(imageNamed: "Main_Idle");
         
         super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
 
+        // Player Node Name
         self.name = "player";
         self.zPosition = 2;
         
+        // Player Physics
         self.physicsBody = SKPhysicsBody(rectangleOfSize: self.size);
         self.physicsBody?.friction = 0.0;
         self.physicsBody?.restitution = 0.0;
@@ -56,6 +54,7 @@ class Player: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // Custom Initializer
     init(health: Double, corruption: Double, attack: Double, specialAttack: Double, defense: Double, specialDefense: Double) {
         
         let texture = SKTexture(imageNamed: "Main_Idle");
@@ -70,52 +69,8 @@ class Player: SKSpriteNode {
         super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
     }
     
-    func addMovingPoint(point: CGPoint) {
-        wayPoints.append(point)
-    }
-    
-    func move(dt: NSTimeInterval) {
-        let currentPosition = position;
-        var newPosition = position;
-        
-        if wayPoints.count > 0 {
-            let targetPoint = wayPoints[0];
-            let offset = CGPoint(x: targetPoint.x - currentPosition.x, y: targetPoint.y - currentPosition.y);
-            let length = Double(sqrtf(Float(offset.x * offset.x) + Float(offset.y * offset.y)));
-            let direction = CGPoint(x:CGFloat(offset.x) / CGFloat(length), y: CGFloat(offset.y) / CGFloat(length));
-            velocity = CGPoint(x: direction.x * movementSpeed, y: direction.y * movementSpeed);
-            
-            newPosition = CGPoint(x:currentPosition.x + velocity.x * CGFloat(dt), y:currentPosition.y + velocity.y * CGFloat(dt));
-            position = newPosition;
-            
-            if frame.contains(targetPoint) {
-                wayPoints.removeAtIndex(0);
-            }
-        }
-    }
-    
-    func playerAction(action: String) {
-        switch action {
-        case "Stab":
-            //selfModificationStat(enemies[0]);
-            break
-        case "Swing":
-            //selfModificationPercentage(enemies[0]);
-            break
-        case "Shoot":
-            //proliferationStat(enemies[0]);
-            break
-        case "Reload":
-            //proliferationPercentage(enemies[0]);
-            break
-        case "Cast":
-            //concealmentStat(enemies[0]);
-            break
-        default:
-            break;
-        }
-    }
-    
+    // Impliment A Spell Casting System
+        // Each Spell Use Corrupts the Player, Adding Debuffs but Unlocking New Spells
     func corrupt() {
         switch self.corruption {
         case 3:
@@ -141,6 +96,7 @@ class Player: SKSpriteNode {
         }
     }
     
+    // Add Spell Functions Here
     func thrust() {
         //self.physicsBody?.categoryBitMask = physicsCategories.playerThrust;
         // switch on knownMoves

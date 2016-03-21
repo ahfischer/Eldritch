@@ -8,17 +8,18 @@
 
 import SpriteKit
 
+// Horror Attack Sprites
+let horrorSwipe = SKSpriteNode(imageNamed: "swipe");
+let horrorBite = SKSpriteNode(imageNamed: "horror_bite");
+let horrorTailSwipe = SKSpriteNode(imageNamed: "horror_tailSwipe");
+let horrorTrample = SKSpriteNode(imageNamed: "trample");
+
 class Horror: SKSpriteNode {
-    
-    let movementSpeed: CGFloat = 80.0
-    var wayPoints: [CGPoint] = []
-    var velocity = CGPoint(x: 0, y: 0)
     
     // Add moves to array to select
     var knownMoves: [String] = ["attacks"];
-    //var knownMoves = [baseAttack]
-    //var knownMoves: [SKAction] = [];
     
+    // Horror Stats
     var health: Double = 100.0;
     var corruption: Double = 1.0;
     
@@ -32,12 +33,15 @@ class Horror: SKSpriteNode {
     
     init() {
         
+        // Horror Texture
         let texture = SKTexture(imageNamed: "sampleMonster");
         
         super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
         
+        // Horror Node Name
         self.name = "horror";
         
+        // Horror Physics
         self.zPosition = 1;
         self.physicsBody = SKPhysicsBody(rectangleOfSize: self.size)
         self.physicsBody?.restitution = 0.0;
@@ -55,47 +59,20 @@ class Horror: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func addMovingPoint(point: CGPoint) {
-        wayPoints.append(point);
-    }
-    
-    func move(dt: NSTimeInterval) {
-        let currentPosition = position
-        var newPosition = position
-        
-        if wayPoints.count > 0 {
-            let targetPoint = wayPoints[0];
-            let offset = CGPoint(x: targetPoint.x - currentPosition.x, y: targetPoint.y - currentPosition.y);
-            let length = Double(sqrtf(Float(offset.x * offset.x) + Float(offset.y * offset.y)));
-            let direction = CGPoint(x:CGFloat(offset.x) / CGFloat(length), y: CGFloat(offset.y) / CGFloat(length));
-            velocity = CGPoint(x: direction.x * movementSpeed, y: direction.y * movementSpeed);
-            
-            newPosition = CGPoint(x:currentPosition.x + velocity.x * CGFloat(dt), y:currentPosition.y + velocity.y * CGFloat(dt));
-            position = newPosition;
-            
-            if frame.contains(targetPoint) {
-                wayPoints.removeAtIndex(0);
-            }
-        }
-    }
-
-    
+    // Determine Horror Attack
     func horrorAction(action: String) {
         switch action {
-        case "Stab":
+        case "Swipe":
             //selfModificationStat(enemies[0]);
             break
-        case "Swing":
+        case "Bite":
             //selfModificationPercentage(enemies[0]);
             break
-        case "Shoot":
+        case "Tail Swipe":
             //proliferationStat(enemies[0]);
             break
-        case "Reload":
+        case "Trample":
             //proliferationPercentage(enemies[0]);
-            break
-        case "Cast":
-            //concealmentStat(enemies[0]);
             break
         default:
             break;
@@ -120,5 +97,37 @@ class Horror: SKSpriteNode {
             // statAllocation();
             print("Stats");
         }
+    }
+    
+    // Swipe Attack
+    func swipe(scene: HuntScene) {
+        
+        // add CGPoint for player location and base attack direction on that player location
+        
+        // if player.position.x > horror.position.x
+            // horrorSwipe.position = CGPoint()
+        horrorSwipe.position = CGPoint(x: horror.position.x, y: horror.position.y+horror.size.height+horrorSwipe.size.width*2);
+        horrorSwipe.size = horrorSwipe.texture!.size();
+        horrorSwipe.physicsBody = SKPhysicsBody(rectangleOfSize: horrorSwipe.size);
+        horrorSwipe.physicsBody?.dynamic = true;
+        horrorSwipe.physicsBody?.categoryBitMask = physicsCategories.horror;
+        horrorSwipe.physicsBody?.contactTestBitMask = physicsCategories.player;
+        scene.addChild(horrorSwipe);
+        
+        horror.runAction(playerAttackAction, withKey: "horrorAttacking");
+        print("horrorAttack");
+    }
+    
+    // Other Attacks Here
+    func bite() {
+        
+    }
+    
+    func tailSwipe() {
+        
+    }
+    
+    func trample() {
+        
     }
 }

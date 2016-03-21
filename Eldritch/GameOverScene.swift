@@ -11,6 +11,8 @@ import SpriteKit
 let gameOverLabel = SKLabelNode(fontNamed: "Copperhead");
 
 class GameOverScene: SKScene {
+    
+    //MARK: Did Move to View
     override func didMoveToView(view: SKView) {
         
         gameOverLabel.name = "gameOverLabel";
@@ -46,6 +48,7 @@ class GameOverScene: SKScene {
         fatalError("init(coder:) has not been implemented")
     }
     
+    //MARK: Touches Began
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         let touch = touches.first! as UITouch;
         let location = touch.locationInNode(self);
@@ -65,7 +68,8 @@ class GameOverScene: SKScene {
             }
         }
     }
-        
+    
+    //MARK: Update
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
         
