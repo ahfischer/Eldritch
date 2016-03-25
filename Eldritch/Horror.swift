@@ -34,9 +34,11 @@ class Horror: SKSpriteNode {
     init() {
         
         // Horror Texture
-        let texture = SKTexture(imageNamed: "sampleMonster");
+        let texture = SKTexture(imageNamed: "Lizard_Horror");
         
         super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
+        
+        self.size = CGSize(width: self.size.width/2, height: self.size.height/2);
         
         // Horror Node Name
         self.name = "horror";

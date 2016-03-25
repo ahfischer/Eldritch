@@ -28,7 +28,7 @@ class Player: SKSpriteNode {
     init() {
         
         // Player Texture
-        let texture = SKTexture(imageNamed: "Main_Idle");
+        let texture = SKTexture(imageNamed: "Player_Idle");
         
         super.init(texture: texture, color: SKColor.clearColor(), size: texture.size());
 
@@ -37,7 +37,9 @@ class Player: SKSpriteNode {
         self.zPosition = 2;
         
         // Player Physics
-        self.physicsBody = SKPhysicsBody(rectangleOfSize: self.size);
+        //self.physicsBody = SKPhysicsBody(rectangleOfSize: self.size);
+            // Shrink Player Hitbox to Shadow Size
+        self.physicsBody = SKPhysicsBody(rectangleOfSize: CGSize(width: self.size.width, height: self.size.height-self.size.height/1.2), center: CGPoint(x: self.position.x, y: self.position.y-self.frame.height/2.5));
         self.physicsBody?.friction = 0.0;
         self.physicsBody?.restitution = 0.0;
         self.physicsBody?.linearDamping = 0.0;
@@ -57,7 +59,7 @@ class Player: SKSpriteNode {
     // Custom Initializer
     init(health: Double, corruption: Double, attack: Double, specialAttack: Double, defense: Double, specialDefense: Double) {
         
-        let texture = SKTexture(imageNamed: "Main_Idle");
+        let texture = SKTexture(imageNamed: "Player_Idle");
         
         self.health = health;
         self.corruption = corruption;

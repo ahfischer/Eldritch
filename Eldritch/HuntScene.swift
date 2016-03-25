@@ -8,6 +8,7 @@
 
 import SpriteKit
 import AVFoundation
+import GameKit
 
 // This Scene Will Have Redone Custom Sprites and Animations for the Final Submission
 
@@ -28,6 +29,9 @@ struct physicsCategories {
 var timeSinceLast: CFTimeInterval = 0.0;
 var lastUpdateTime: CFTimeInterval = 0.0;
 var lastAttackTime: CFTimeInterval = 0.0;
+
+// Player Cooldowns
+var lastPlayerDodgeTime: CFTimeInterval = 0.0;
 
 // Bools
 var touchingScreen = false;
@@ -68,11 +72,20 @@ let roar = SKAction.playSoundFileNamed("roar.wav", waitForCompletion: false);
 let pain = SKAction.playSoundFileNamed("pain.wav", waitForCompletion: false);
 
 // Player Animations
-let playerIdleState = SKAction.setTexture(SKTexture(imageNamed: "Main_Idle"));
-let playerRunAction: SKAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Main_Move1"), SKTexture(imageNamed: "Main_Move2"), SKTexture(imageNamed: "Main_Move3"), SKTexture(imageNamed: "Main_Move4"), SKTexture(imageNamed: "Main_Move5")], timePerFrame: 0.17);
+let playerIdleState = SKAction.setTexture(SKTexture(imageNamed: "Player_Idle"));
+let playerRunAction: SKAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Player_Move_1"), SKTexture(imageNamed: "Player_Move_2"), SKTexture(imageNamed: "Player_Move_3"), SKTexture(imageNamed: "Player_Move_4"), SKTexture(imageNamed: "Player_Move_5"), SKTexture(imageNamed: "Player_Move_6")], timePerFrame: 0.25);
+//let playerRunAction: SKAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Main_Move1"), SKTexture(imageNamed: "Main_Move2"), SKTexture(imageNamed: "Main_Move3"), SKTexture(imageNamed: "Main_Move4"), SKTexture(imageNamed: "Main_Move5")], timePerFrame: 0.17);
 let playerAttackAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Main_Attack1"), SKTexture(imageNamed: "Main_Attack2"), SKTexture(imageNamed: "Main_Attack3")], timePerFrame: 0.4);
 // Placeholder Dodge Sprite
 //let dodgeTexture = SKTexture(imageNamed: "placeholderMist");
+
+// Achievements
+var dodgeCounter = 0;
+
+// Leaderboard Stats
+var currentScore = 25;
+var previousHighScore = 0;
+let defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults();
 
 class HuntScene: SKScene {
     
@@ -100,12 +113,17 @@ class HuntScene: SKScene {
         horror = Horror();
         
         backgroundColor = UIColor.grayColor();
+        let background = SKSpriteNode(imageNamed: "background");
+        background.position = CGPoint(x: frame.size.width/2, y: frame.size.height/2);
+        background.zPosition = -1;
+        self.addChild(background);
+        
         
         // Player Node
         player.position = CGPointMake(self.frame.size.width/3, self.frame.size.height/3);
         player.zPosition = 2;
-        //player.xScale = 1.5;
-        //player.yScale = 1.5;
+        player.xScale = 1.5;
+        player.yScale = 1.5;
         player.name = "player";
         self.addChild(player);
         
@@ -414,6 +432,8 @@ class HuntScene: SKScene {
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
         
+        let playerDodgeAction = SKAction.animateWithTextures([SKTexture(imageNamed: "placeholderMist"), SKTexture(imageNamed: "placeholderMist")], timePerFrame: 2);
+        
         timeSinceLast = currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
         
@@ -422,6 +442,7 @@ class HuntScene: SKScene {
             timeSinceLast = 1.0/60.0;
         }
         
+        // If Any Action is Being Done, Update Time
         if (player.actionForKey("moving") != nil || player.actionForKey("playerAttacking") != nil || player.actionForKey("playerDodging") != nil) {
             
             self.updateWithTimeSinceLast(timeSinceLast);
@@ -455,12 +476,15 @@ class HuntScene: SKScene {
             dodgeIcon.alpha = 1;
         }
         
-//        if (player.actionForKey("playerDodging") != nil) {
-//            player.texture = dodgeTexture;
-//        }
+        // If Player is Dodging, Run Animation
+        if (player.actionForKey("playerDodging") != nil) {
+            player.runAction(playerDodgeAction);
+            // Increment Dodge Counter for Achievement
+            ++dodgeCounter;
+        }
         
-        // If Player Isn't Moving, Return to Idle
-        if (player.actionForKey("moving") == nil && player.actionForKey("playerAttacking") == nil) {
+        // If Player Isn't Acting, Return to Idle
+        if (player.actionForKey("moving") == nil && player.actionForKey("playerAttacking") == nil) && player.actionForKey("playerDodging") == nil {
             
             // Only Unclick After Moving
             if moveEnabled == false {
