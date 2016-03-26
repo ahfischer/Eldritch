@@ -108,15 +108,16 @@ class Horror: SKSpriteNode {
         
         // if player.position.x > horror.position.x
             // horrorSwipe.position = CGPoint()
-        horrorSwipe.position = CGPoint(x: horror.position.x, y: horror.position.y+horror.size.height+horrorSwipe.size.width*2);
-        horrorSwipe.size = horrorSwipe.texture!.size();
-        horrorSwipe.physicsBody = SKPhysicsBody(rectangleOfSize: horrorSwipe.size);
-        horrorSwipe.physicsBody?.dynamic = true;
-        horrorSwipe.physicsBody?.categoryBitMask = physicsCategories.horror;
-        horrorSwipe.physicsBody?.contactTestBitMask = physicsCategories.player;
-        scene.addChild(horrorSwipe);
         
-        horror.runAction(playerAttackAction, withKey: "horrorAttacking");
+//        horrorSwipe.position = CGPoint(x: horror.position.x, y: horror.position.y+horror.size.height+horrorSwipe.size.width*2);
+//        horrorSwipe.size = horrorSwipe.texture!.size();
+//        horrorSwipe.physicsBody = SKPhysicsBody(rectangleOfSize: horrorSwipe.size);
+//        horrorSwipe.physicsBody?.dynamic = true;
+//        horrorSwipe.physicsBody?.categoryBitMask = physicsCategories.horror;
+//        horrorSwipe.physicsBody?.contactTestBitMask = physicsCategories.player;
+//        scene.addChild(horrorSwipe);
+        
+        horror.runAction(horrorSwipeAction, withKey: "horrorAttacking");
         print("horrorAttack");
     }
     

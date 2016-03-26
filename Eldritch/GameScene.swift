@@ -15,7 +15,6 @@ var credits = SKLabelNode(fontNamed: "Copperhead");
 var tutorial = SKLabelNode(fontNamed: "Copperhead");
 var achievements = SKLabelNode(fontNamed: "Copperhead");
 var leaderboards = SKLabelNode(fontNamed: "Copperhead");
-var postHighScore = SKLabelNode(fontNamed: "Copperhead");
 
 var gameCenterAchievements = [String: GKAchievement]();
 
@@ -24,7 +23,7 @@ class GameScene: SKScene {
     //MARK: Did Move to View
     override func didMoveToView(view: SKView) {
         
-        previousHighScore = defaults.integerForKey("PreviousHighScore");
+        previousHorrorsHunted = defaults.integerForKey("PreviousHorrorsHunted");
         
         authenticateLocalPlayer();
         
@@ -79,16 +78,6 @@ class GameScene: SKScene {
         // Position
         leaderboards.position = CGPoint(x: frame.size.width/2, y: frame.size.height/4.25);
         self.addChild(leaderboards);
-        
-        // Post Score Label
-        postHighScore.name = "PostHighScore";
-        
-        postHighScore.text = "Post High Score";
-        postHighScore.fontSize = 25;
-        postHighScore.fontColor = UIColor(red: 14/255, green: 107/255, blue: 30/255, alpha: 1)
-        // Position
-        postHighScore.position = CGPoint(x: frame.size.width/2, y: frame.size.height/5.5);
-        self.addChild(postHighScore);
     }
     
     //MARK: Touches Began
@@ -119,28 +108,16 @@ class GameScene: SKScene {
                 gameScene.scaleMode = .AspectFill;
                 self.view?.presentScene(gameScene, transition: transition);
             case "Achievements":
-                incrementCurrentPercentOfAchievement("Footloose", amount: 10);
-            case "Leaderboards":
-                
-                // Update Leaderboard if Score is Higher Than Last
-                if (currentScore > previousHighScore) {
-                    self.saveHighScore("EldritchLeaderboard", score: currentScore);
-                    
-                    // Set Previous Score
-                    previousHighScore = currentScore;
-                    
-                    defaults.setInteger(currentScore, forKey: "PreviousHighScore");
-                }
-                // Then Open Game Center
                 showGameCenter();
-            case "PostHighScore":
-                break;
+            case "Leaderboards":
+                showGameCenter();
             default:
                 break;
             }
         }
     }
     
+    // Provide Information About Logged In Player
     func authenticateLocalPlayer() {
         let localPlayer = GKLocalPlayer.localPlayer();
         
@@ -158,11 +135,12 @@ class GameScene: SKScene {
         }
     }
     
+    // Load Current Achievement Percentages
     func loadAchievementPercentages() {
         print("Getting percentage of past achievements");
         GKAchievement.loadAchievementsWithCompletionHandler( { (allAchievements, error) -> Void in
             if error != nil {
-                print("Game Center could not load achievements, the error is \(error)");
+                print("Game Center could not load achievements with error \(error)");
             } else {
                 if (allAchievements != nil) {
                     
@@ -183,6 +161,7 @@ class GameScene: SKScene {
         })
     }
     
+    // Submit High Scores
     func saveHighScore(identifier: String, score: Int) {
         
         // Only Submit High Scores if Signed in to Game Center
@@ -201,6 +180,7 @@ class GameScene: SKScene {
         }
     }
     
+    // Adjust Percentage of Achievement Accomplishment
     func incrementCurrentPercentOfAchievement(identifier: String, amount: Double) {
         if GKLocalPlayer.localPlayer().authenticated {
             var currentPercentFound = false;

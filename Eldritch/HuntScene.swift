@@ -10,8 +10,6 @@ import SpriteKit
 import AVFoundation
 import GameKit
 
-// This Scene Will Have Redone Custom Sprites and Animations for the Final Submission
-
 // THE DISPLAYED ICONS ARE QUEUED ACTIONS
 
 // Collision Body
@@ -32,12 +30,14 @@ var lastAttackTime: CFTimeInterval = 0.0;
 
 // Player Cooldowns
 var lastPlayerDodgeTime: CFTimeInterval = 0.0;
+var timeSinceLastDodge: CFTimeInterval = 0.0;
 
 // Bools
 var touchingScreen = false;
 var moveEnabled = false;
 var attackEnabled = false;
 var dodgeEnabled = false;
+var canDodge = true;
 var gamePaused = false;
 
 var won = false;
@@ -76,6 +76,7 @@ let playerIdleState = SKAction.setTexture(SKTexture(imageNamed: "Player_Idle"));
 let playerRunAction: SKAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Player_Move_1"), SKTexture(imageNamed: "Player_Move_2"), SKTexture(imageNamed: "Player_Move_3"), SKTexture(imageNamed: "Player_Move_4"), SKTexture(imageNamed: "Player_Move_5"), SKTexture(imageNamed: "Player_Move_6")], timePerFrame: 0.25);
 //let playerRunAction: SKAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Main_Move1"), SKTexture(imageNamed: "Main_Move2"), SKTexture(imageNamed: "Main_Move3"), SKTexture(imageNamed: "Main_Move4"), SKTexture(imageNamed: "Main_Move5")], timePerFrame: 0.17);
 let playerAttackAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Main_Attack1"), SKTexture(imageNamed: "Main_Attack2"), SKTexture(imageNamed: "Main_Attack3")], timePerFrame: 0.4);
+let horrorSwipeAction = SKAction.animateWithTextures([SKTexture(imageNamed: "horror_Swipe1"), SKTexture(imageNamed: "horror_Swipe2"), SKTexture(imageNamed: "horror_Swipe2"), SKTexture(imageNamed: "horror_Swipe3"), SKTexture(imageNamed: "horror_Swipe1")], timePerFrame: 0.4);
 // Placeholder Dodge Sprite
 //let dodgeTexture = SKTexture(imageNamed: "placeholderMist");
 
@@ -83,8 +84,8 @@ let playerAttackAction = SKAction.animateWithTextures([SKTexture(imageNamed: "Ma
 var dodgeCounter = 0;
 
 // Leaderboard Stats
-var currentScore = 25;
-var previousHighScore = 0;
+var horrorsHunted = 0;
+var previousHorrorsHunted = 0;
 let defaults: NSUserDefaults = NSUserDefaults.standardUserDefaults();
 
 class HuntScene: SKScene {
@@ -262,21 +263,31 @@ class HuntScene: SKScene {
                 }
             case "attackIcon":
                 attackEnabled = true;
-                //attackIcon.alpha = 0.3;
+                attackIcon.alpha = 0.3;
                 if attackEnabled || dodgeEnabled {
                     dodgeEnabled = false;
+                }
+                if moveEnabled {
+                    moveEnabled = false;
                 }
             case "dodgeIcon":
                 // Disipate into a Purple Mist and Wisp to New Area
                 // have to remove collision
                 
-                dodgeEnabled = true;
+                if canDodge {
+                    dodgeEnabled = true;
+                }
+                
+                if moveEnabled {
+                    moveEnabled = false;
+                }
             case "directionUpIcon":
                 
                 // If Attack Icon was Tapped
                 if attackEnabled {
                     spear.position = CGPoint(x: player.position.x, y: player.position.y+spear.size.width*2);
                     spear.size = spear.texture!.size();
+                    // Throws error because horror is using this as a placeholder attack
                     spear.physicsBody = SKPhysicsBody(rectangleOfSize: spear.size);
                     spear.physicsBody?.dynamic = true;
                     spear.physicsBody?.categoryBitMask = physicsCategories.spear;
@@ -437,6 +448,12 @@ class HuntScene: SKScene {
         timeSinceLast = currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
         
+        // Cooldown for Dodge
+        if canDodge == false {
+            timeSinceLastDodge = currentTime - lastPlayerDodgeTime;
+            lastPlayerDodgeTime = currentTime;
+        }
+        
         // Set off of 60fps
         if (timeSinceLast > 1) {
             timeSinceLast = 1.0/60.0;
@@ -446,6 +463,7 @@ class HuntScene: SKScene {
         if (player.actionForKey("moving") != nil || player.actionForKey("playerAttacking") != nil || player.actionForKey("playerDodging") != nil) {
             
             self.updateWithTimeSinceLast(timeSinceLast);
+            self.updateDodgeWithTimeSinceLast(timeSinceLastDodge);
         }
         
         // Hide Directional Attacks, Until Attacking
@@ -481,6 +499,7 @@ class HuntScene: SKScene {
             player.runAction(playerDodgeAction);
             // Increment Dodge Counter for Achievement
             ++dodgeCounter;
+            canDodge = false;
         }
         
         // If Player Isn't Acting, Return to Idle
@@ -512,7 +531,7 @@ class HuntScene: SKScene {
         // If Player Isn't Attacking
         if (player.actionForKey("playerAttacking") == nil) {
             attackIcon.userInteractionEnabled = false;
-            attackIcon.alpha = 1;
+            attackIcon.alpha = 1.0;
             spear.removeFromParent();
         }
         
@@ -556,7 +575,7 @@ class HuntScene: SKScene {
         
         if horror.health <= 0 {
             //horror.die();
-            horror.removeFromParent();
+            //horror.removeFromParent();
             // WIN
             won = true;
             gameOver();
@@ -570,6 +589,7 @@ class HuntScene: SKScene {
         }
     }
     
+    // AI Timing
     func updateWithTimeSinceLast(timeSinceLast: CFTimeInterval) {
         lastAttackTime += timeSinceLast;
         if (lastAttackTime > 5) {
@@ -579,7 +599,61 @@ class HuntScene: SKScene {
         }
     }
     
+    // Cooldown for Dodge
+    func updateDodgeWithTimeSinceLast(timeSinceLast: CFTimeInterval) {
+        lastPlayerDodgeTime += timeSinceLast;
+        if (lastPlayerDodgeTime > 3) {
+            lastPlayerDodgeTime = 0;
+            canDodge = true;
+        }
+    }
+    
     func gameOver() {
+        
+        // If Dodge Achievement is Met
+        if dodgeCounter >= 10 {
+            incrementCurrentPercentOfAchievement("Footloose", amount: 100);
+        }
+        
+        // If Negative Achievement is Met
+        if horror.health == 100 {
+            incrementCurrentPercentOfAchievement("Flawless", amount: 100);
+        }
+        
+        // If Horror Still has 3/4 Health
+        if horror.health > 50 && horror.health <= 75 {
+            incrementCurrentPercentOfAchievement("Wound", amount: 30);
+        }
+        
+        // If Horror Still has 1/2 Health
+        if horror.health > 25 && horror.health <= 50 {
+            incrementCurrentPercentOfAchievement("Wound", amount: 30);
+        }
+        
+        // If Horror Still has 1/4 Health
+        if horror.health > 0 && horror.health <= 25 {
+            incrementCurrentPercentOfAchievement("Wound", amount: 30);
+        }
+        
+        // If Horror Is Dead
+        if horror.health <= 0 {
+            incrementCurrentPercentOfAchievement("Victory", amount: 100);
+            ++horrorsHunted;
+        }
+        
+        // Reset Achievement Counters
+        dodgeCounter = 0;
+        
+        // Update Leaderboard if Score is Higher Than Last
+        if (horrorsHunted > previousHorrorsHunted) {
+            self.saveHighScore("EldritchLeaderboard", score: horrorsHunted);
+            
+            // Set Previous Score
+            previousHorrorsHunted = horrorsHunted;
+            
+            defaults.setInteger(horrorsHunted, forKey: "PreviousHorrorsHunted");
+        }
+        
         // GameOver Scene Transition
         audio.stop();
         let transition = SKTransition.revealWithDirection(.Down, duration: 1.0);
@@ -642,7 +716,7 @@ extension HuntScene: SKPhysicsContactDelegate {
                 // Interrupt Horror
                 horror.removeAllActions();
                 // Play Injure Animation
-                horror.health -= 50;
+                horror.health -= 25;
                 print(horror.health);
                 self.runAction(pain);
             }
@@ -657,6 +731,87 @@ extension HuntScene: SKPhysicsContactDelegate {
     }
 }
 
+extension HuntScene {
+    func loadAchievementPercentages() {
+        print("Getting percentage of past achievements");
+        GKAchievement.loadAchievementsWithCompletionHandler( { (allAchievements, error) -> Void in
+            if error != nil {
+                print("Game Center could not load achievements, the error is \(error)");
+            } else {
+                if (allAchievements != nil) {
+                    
+                    for achievement in allAchievements! {
+                        
+                        if let singleAchievement: GKAchievement = achievement {
+                            
+                            gameCenterAchievements[singleAchievement.identifier!] = singleAchievement;
+                        }
+                    }
+                    
+                    for (id, achievement) in gameCenterAchievements {
+                        print("\(id) - \(achievement.percentComplete)");
+                    }
+                }
+            }
+            
+        })
+    }
+    
+    func saveHighScore(identifier: String, score: Int) {
+        
+        // Only Submit High Scores if Signed in to Game Center
+        if (GKLocalPlayer.localPlayer().authenticated) {
+            let scoreReporter = GKScore(leaderboardIdentifier: identifier);
+            scoreReporter.value = Int64(score);
+            let scoreArray: [GKScore] = [scoreReporter];
+            GKScore.reportScores(scoreArray, withCompletionHandler: { (error) -> Void in
+                if error != nil {
+                    print(error);
+                } else {
+                    print("Posted score of \(score)");
+                    // from here you can do anything else to tell the user they posted a high score
+                }
+            })
+        }
+    }
+    
+    func incrementCurrentPercentOfAchievement(identifier: String, amount: Double) {
+        if GKLocalPlayer.localPlayer().authenticated {
+            var currentPercentFound = false;
+            
+            if (gameCenterAchievements.count != 0) {
+                for (id, achievement) in gameCenterAchievements {
+                    if (id == identifier) {
+                        currentPercentFound = true;
+                        var currentPercent = achievement.percentComplete;
+                        currentPercent = currentPercent+amount;
+                        reportAchievement(identifier, percentComplete: currentPercent)
+                        break;
+                    }
+                }
+            }
+            
+            if (currentPercentFound == false) {
+                reportAchievement(identifier, percentComplete: amount);
+            }
+        }
+    }
+    
+    func reportAchievement(identifier: String, percentComplete: Double) {
+        let achievement = GKAchievement(identifier: identifier);
+        achievement.percentComplete = percentComplete;
+        let achievementArray: [GKAchievement] = [achievement];
+        GKAchievement.reportAchievements(achievementArray) { (error) -> Void in
+            if error != nil {
+                print(error);
+            } else {
+                print("reported achievement with percent of \(percentComplete)");
+                gameCenterAchievements.removeAll();
+                self.loadAchievementPercentages();
+            }
+        }
+    }
+}
 
 // in didMoveToView
 //        // Icon Nodes
